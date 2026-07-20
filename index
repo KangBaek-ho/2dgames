@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2dgames</title>
+<style>
+  @font-face{
+    /* 픽셀 느낌의 표제용 폰트 (없으면 모노스페이스로 자연스럽게 대체됨) */
+    font-family:'PixelTitle';
+    src:local('Press Start 2P');
+  }
+  :root{
+    --blue:#2b6bff;
+    --blue-dark:#1c4fd6;
+    --ink:#12141a;
+    --ink-dim:#6b7280;
+    --line:#e7e9ee;
+    --paper:#ffffff;
+    --grid:#f3f5f8;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Segoe UI',-apple-system,'Malgun Gothic','맑은 고딕',sans-serif;
+    min-height:100vh;
+  }
+
+  /* ── 상단 ── */
+  header{
+    padding:28px 24px 20px;
+    border-bottom:2px solid var(--ink);
+    position:relative;
+    overflow:hidden;
+  }
+  header::before{
+    /* 은은한 픽셀 격자 텍스처 - 2D 게임이라는 주제를 헤더에 살짝 녹여냄 */
+    content:'';
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size:16px 16px;
+    mask-image:linear-gradient(to bottom, black, transparent 85%);
+    pointer-events:none;
+  }
+  .headerInner{max-width:1040px;margin:0 auto;position:relative;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:7px;
+    font-family:'PixelTitle', ui-monospace, 'Courier New', monospace;
+    font-size:10px;letter-spacing:2px;color:var(--blue);
+    background:#eef3ff;border:1px solid #d6e2ff;border-radius:20px;
+    padding:6px 12px;margin-bottom:16px;
+  }
+  .eyebrow .dot{width:6px;height:6px;background:var(--blue);animation:blink 1.1s steps(1) infinite;}
+  @keyframes blink{50%{opacity:0;}}
+  h1{
+    font-family:'PixelTitle', ui-monospace, 'Courier New', monospace;
+    font-size:clamp(28px,5vw,44px);
+    letter-spacing:1px;
+    margin:0 0 6px;
+    line-height:1.3;
+  }
+  h1 span{color:var(--blue);}
+  .sub{color:var(--ink-dim);font-size:14px;margin:0 0 24px;}
+
+  .searchRow{position:relative;max-width:420px;}
+  .searchRow svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--ink-dim);}
+  #searchInput{
+    width:100%;padding:12px 16px 12px 40px;
+    border:2px solid var(--ink);border-radius:10px;
+    font-size:14px;color:var(--ink);background:var(--paper);
+    outline:none;
+  }
+  #searchInput:focus{border-color:var(--blue);box-shadow:0 0 0 3px #dbe6ff;}
+  #searchInput::placeholder{color:#9aa1ad;}
+
+  /* ── 게임 그리드 ── */
+  main{max-width:1040px;margin:0 auto;padding:32px 24px 80px;}
+  .countRow{font-size:12px;color:var(--ink-dim);margin-bottom:16px;letter-spacing:0.3px;}
+  #countNum{color:var(--ink);font-weight:700;}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(220px,1fr));
+    gap:22px;
+  }
+  .gameCard{
+    border:2px solid var(--ink);
+    border-radius:14px;
+    overflow:hidden;
+    background:var(--paper);
+    display:flex;flex-direction:column;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .gameCard:hover{transform:translateY(-4px);box-shadow:6px 6px 0 var(--ink);}
+
+  .thumb{
+    aspect-ratio:4/3;
+    background:#eaf7ee;
+    display:flex;align-items:center;justify-content:center;
+    border-bottom:2px solid var(--ink);
+    position:relative;
+  }
+  .thumb svg{width:72%;height:72%;image-rendering:pixelated;}
+
+  .cardBody{padding:14px 16px 16px;display:flex;flex-direction:column;gap:4px;flex:1;}
+  .gameTitle{font-weight:800;font-size:15px;}
+  .gameTag{font-size:11px;color:var(--ink-dim);letter-spacing:0.3px;}
+
+  .playBtn{
+    margin-top:12px;
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    background:var(--blue);color:#fff;text-decoration:none;
+    font-weight:800;font-size:13px;letter-spacing:0.3px;
+    padding:10px 14px;border-radius:8px;border:2px solid var(--ink);
+  }
+  .playBtn:hover{background:var(--blue-dark);}
+  .playBtn:active{transform:translateY(1px);}
+
+  .emptyState{
+    text-align:center;color:var(--ink-dim);font-size:13px;
+    padding:60px 20px;display:none;
+  }
+
+  footer{
+    border-top:2px solid var(--ink);
+    padding:18px 24px;text-align:center;
+    color:var(--ink-dim);font-size:11px;
+    font-family:ui-monospace,'Courier New',monospace;
+    letter-spacing:0.5px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="headerInner">
+    <div class="eyebrow"><span class="dot"></span> ARCADE ONLINE</div>
+    <h1>2d<span>games</span></h1>
+    <p class="sub">브라우저에서 바로 즐기는 2D 게임 모음</p>
+    <div class="searchRow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="게임 이름으로 검색...">
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="countRow"><span id="countNum">1</span>개의 게임</div>
+
+  <div class="grid" id="grid">
+    <div class="gameCard" data-name="eating snakes 이팅 스네이크 뱀 스네이크게임">
+      <div class="thumb">
+        <!-- 오리지널 픽셀아트: 구슬을 먹는 뱀 -->
+        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+          <rect x="0" y="0" width="32" height="32" fill="#eaf7ee"/>
+          <rect x="4" y="26" width="2" height="2" fill="#bfe3c9"/>
+          <rect x="12" y="6" width="2" height="2" fill="#bfe3c9"/>
+          <rect x="24" y="22" width="2" height="2" fill="#bfe3c9"/>
+          <!-- 몸통 -->
+          <rect x="6" y="18" width="4" height="4" fill="#2f9e5a"/>
+          <rect x="10" y="18" width="4" height="4" fill="#37b568"/>
+          <rect x="14" y="14" width="4" height="4" fill="#2f9e5a"/>
+          <rect x="14" y="18" width="4" height="4" fill="#37b568"/>
+          <rect x="18" y="14" width="4" height="4" fill="#2f9e5a"/>
+          <!-- 머리 -->
+          <rect x="20" y="10" width="6" height="6" fill="#37b568"/>
+          <rect x="24" y="11" width="2" height="2" fill="#ffffff"/>
+          <!-- 먹이 -->
+          <rect x="8" y="8" width="3" height="3" fill="#ff5d73"/>
+          <rect x="20" y="20" width="3" height="3" fill="#ffd166"/>
+        </svg>
+      </div>
+      <div class="cardBody">
+        <div class="gameTitle">Eating Snakes</div>
+        <div class="gameTag">멀티플레이어 · 아케이드</div>
+        <a class="playBtn" href="https://hijaeheon.github.io/eatingsnakes/">▶ 플레이</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="emptyState" id="emptyState">검색 결과가 없어요. 다른 이름으로 찾아보세요.</div>
+</main>
+
+<footer>2DGAMES — PRESS PLAY TO START</footer>
+
+<script>
+  const input = document.getElementById('searchInput');
+  const cards = Array.from(document.querySelectorAll('.gameCard'));
+  const countNum = document.getElementById('countNum');
+  const emptyState = document.getElementById('emptyState');
+
+  function normalize(s){ return s.toLowerCase().trim(); }
+
+  function filterGames(){
+    const q = normalize(input.value);
+    let visible = 0;
+    for(const card of cards){
+      const match = normalize(card.dataset.name).includes(q);
+      card.style.display = match ? '' : 'none';
+      if(match) visible++;
+    }
+    countNum.textContent = visible;
+    emptyState.style.display = visible === 0 ? 'block' : 'none';
+  }
+
+  input.addEventListener('input', filterGames);
+  filterGames();
+</script>
+
+</body>
+</html>
