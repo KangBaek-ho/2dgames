@@ -6,7 +6,6 @@
 <title>2dgames</title>
 <style>
   @font-face{
-    /* 픽셀 느낌의 표제용 폰트 (없으면 모노스페이스로 자연스럽게 대체됨) */
     font-family:'PixelTitle';
     src:local('Press Start 2P');
   }
@@ -18,6 +17,7 @@
     --line:#e7e9ee;
     --paper:#ffffff;
     --grid:#f3f5f8;
+    --green:#1fa15a;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -28,7 +28,6 @@
     min-height:100vh;
   }
 
-  /* ── 상단 ── */
   header{
     padding:28px 24px 20px;
     border-bottom:2px solid var(--ink);
@@ -36,7 +35,6 @@
     overflow:hidden;
   }
   header::before{
-    /* 은은한 픽셀 격자 텍스처 - 2D 게임이라는 주제를 헤더에 살짝 녹여냄 */
     content:'';
     position:absolute; inset:0;
     background-image:
@@ -46,7 +44,8 @@
     mask-image:linear-gradient(to bottom, black, transparent 85%);
     pointer-events:none;
   }
-  .headerInner{max-width:1040px;margin:0 auto;position:relative;}
+  .headerInner{max-width:1080px;margin:0 auto;position:relative;}
+  .headTop{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;}
   .eyebrow{
     display:inline-flex;align-items:center;gap:7px;
     font-family:'PixelTitle', ui-monospace, 'Courier New', monospace;
@@ -66,7 +65,23 @@
   h1 span{color:var(--blue);}
   .sub{color:var(--ink-dim);font-size:14px;margin:0 0 24px;}
 
-  .searchRow{position:relative;max-width:420px;}
+  .headActions{display:flex;gap:8px;flex-shrink:0;}
+  .ghostBtn{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--paper);border:2px solid var(--ink);color:var(--ink);
+    font-weight:800;font-size:12.5px;letter-spacing:0.2px;
+    padding:9px 14px;border-radius:8px;cursor:pointer;
+  }
+  .ghostBtn:hover{background:var(--grid);}
+  .solidBtn{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--ink);border:2px solid var(--ink);color:#fff;
+    font-weight:800;font-size:12.5px;letter-spacing:0.2px;
+    padding:9px 14px;border-radius:8px;cursor:pointer;
+  }
+  .solidBtn:hover{background:#000;}
+
+  .searchRow{position:relative;max-width:420px;margin-bottom:16px;}
   .searchRow svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--ink-dim);}
   #searchInput{
     width:100%;padding:12px 16px 12px 40px;
@@ -77,8 +92,15 @@
   #searchInput:focus{border-color:var(--blue);box-shadow:0 0 0 3px #dbe6ff;}
   #searchInput::placeholder{color:#9aa1ad;}
 
-  /* ── 게임 그리드 ── */
-  main{max-width:1040px;margin:0 auto;padding:32px 24px 80px;}
+  .catRow{display:flex;flex-wrap:wrap;gap:8px;}
+  .catChip{
+    font-size:12px;font-weight:700;letter-spacing:0.2px;
+    padding:7px 13px;border-radius:20px;border:2px solid var(--ink);
+    background:var(--paper);color:var(--ink);cursor:pointer;white-space:nowrap;
+  }
+  .catChip.active{background:var(--blue);border-color:var(--blue);color:#fff;}
+
+  main{max-width:1080px;margin:0 auto;padding:28px 24px 80px;}
   .countRow{font-size:12px;color:var(--ink-dim);margin-bottom:16px;letter-spacing:0.3px;}
   #countNum{color:var(--ink);font-weight:700;}
 
@@ -103,8 +125,10 @@
     display:flex;align-items:center;justify-content:center;
     border-bottom:2px solid var(--ink);
     position:relative;
+    overflow:hidden;
   }
   .thumb svg{width:72%;height:72%;image-rendering:pixelated;}
+  .thumb img{width:100%;height:100%;object-fit:cover;}
 
   .cardBody{padding:14px 16px 16px;display:flex;flex-direction:column;gap:4px;flex:1;}
   .gameTitle{font-weight:800;font-size:15px;}
@@ -132,83 +156,403 @@
     font-family:ui-monospace,'Courier New',monospace;
     letter-spacing:0.5px;
   }
+
+  .modalOverlay{
+    display:none;position:fixed;inset:0;background:rgba(18,20,26,0.55);
+    align-items:center;justify-content:center;z-index:100;padding:20px;
+  }
+  .modalOverlay.show{display:flex;}
+  .modalCard{
+    background:var(--paper);border:2px solid var(--ink);border-radius:14px;
+    width:480px;max-width:100%;max-height:88vh;overflow-y:auto;
+    padding:22px 24px 24px;
+  }
+  .modalHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .modalHead h2{font-size:18px;margin:0;font-family:'PixelTitle', ui-monospace, monospace;letter-spacing:0.5px;}
+  .closeX{background:none;border:none;font-size:18px;cursor:pointer;color:var(--ink-dim);}
+  .closeX:hover{color:var(--ink);}
+
+  label.formLabel{display:block;font-size:12px;font-weight:700;color:var(--ink-dim);letter-spacing:0.3px;margin:14px 0 6px;text-transform:uppercase;}
+  input[type=text], input[type=url], select{
+    width:100%;padding:10px 12px;border:2px solid var(--ink);border-radius:8px;
+    font-size:14px;color:var(--ink);background:var(--paper);outline:none;
+  }
+  input[type=text]:focus, input[type=url]:focus, select:focus{border-color:var(--blue);}
+
+  .thumbUpload{
+    margin-top:6px;border:2px dashed var(--line);border-radius:10px;
+    padding:14px;display:flex;align-items:center;gap:14px;cursor:pointer;
+  }
+  .thumbUpload:hover{border-color:var(--blue);}
+  .thumbPreview{
+    width:64px;height:48px;border-radius:6px;background:var(--grid);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;
+    border:1px solid var(--line);
+  }
+  .thumbPreview img{width:100%;height:100%;object-fit:cover;}
+  .thumbUploadText{font-size:12.5px;color:var(--ink-dim);}
+  .thumbUploadText b{color:var(--ink);}
+
+  .formActions{display:flex;gap:8px;margin-top:20px;}
+  .formActions .solidBtn, .formActions .ghostBtn{flex:1;justify-content:center;}
+  .formErr{font-size:12px;color:#d6304a;margin-top:8px;display:none;}
+
+  .myGameRow{
+    display:flex;align-items:center;gap:12px;
+    border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px;
+  }
+  .myGameThumb{width:52px;height:39px;border-radius:6px;overflow:hidden;background:var(--grid);flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+  .myGameThumb img{width:100%;height:100%;object-fit:cover;}
+  .myGameThumb svg{width:70%;height:70%;}
+  .myGameInfo{flex:1;min-width:0;}
+  .myGameName{font-weight:700;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .myGameMeta{font-size:11px;color:var(--ink-dim);}
+  .statusBadge{font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:10px;letter-spacing:0.3px;}
+  .statusBadge.pub{background:#e6f7ec;color:var(--green);}
+  .statusBadge.draft{background:#fff3e0;color:#c76b00;}
+  .myGameActions{display:flex;gap:6px;flex-shrink:0;}
+  .smallBtn{
+    font-size:11.5px;font-weight:700;padding:6px 10px;border-radius:7px;cursor:pointer;border:1.5px solid var(--ink);background:var(--paper);
+  }
+  .smallBtn.publish{background:var(--blue);border-color:var(--blue);color:#fff;}
+  .smallBtn.publish:hover{background:var(--blue-dark);}
+  .smallBtn.danger{color:#d6304a;border-color:#f3c6ce;}
+  .smallBtn.danger:hover{background:#fdeef0;}
+  .myGamesEmpty{font-size:12.5px;color:var(--ink-dim);text-align:center;padding:30px 10px;}
 </style>
 </head>
 <body>
 
 <header>
   <div class="headerInner">
-    <div class="eyebrow"><span class="dot"></span> ARCADE ONLINE</div>
-    <h1>2d<span>games</span></h1>
-    <p class="sub">브라우저에서 바로 즐기는 2D 게임 모음</p>
+    <div class="headTop">
+      <div>
+        <div class="eyebrow"><span class="dot"></span> ARCADE ONLINE</div>
+        <h1>2d<span>games</span></h1>
+        <p class="sub">브라우저에서 바로 즐기는 2D 게임 모음</p>
+      </div>
+      <div class="headActions">
+        <button class="ghostBtn" id="openMyGamesBtn">🗂 내 게임</button>
+        <button class="solidBtn" id="openCreateBtn">➕ 게임 만들기</button>
+      </div>
+    </div>
+
     <div class="searchRow">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input type="text" id="searchInput" placeholder="게임 이름으로 검색...">
     </div>
+    <div class="catRow" id="catRow"></div>
   </div>
 </header>
 
 <main>
   <div class="countRow"><span id="countNum">1</span>개의 게임</div>
-
-  <div class="grid" id="grid">
-    <div class="gameCard" data-name="eating snakes 이팅 스네이크 뱀 스네이크게임">
-      <div class="thumb">
-        <!-- 오리지널 픽셀아트: 구슬을 먹는 뱀 -->
-        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
-          <rect x="0" y="0" width="32" height="32" fill="#eaf7ee"/>
-          <rect x="4" y="26" width="2" height="2" fill="#bfe3c9"/>
-          <rect x="12" y="6" width="2" height="2" fill="#bfe3c9"/>
-          <rect x="24" y="22" width="2" height="2" fill="#bfe3c9"/>
-          <!-- 몸통 -->
-          <rect x="6" y="18" width="4" height="4" fill="#2f9e5a"/>
-          <rect x="10" y="18" width="4" height="4" fill="#37b568"/>
-          <rect x="14" y="14" width="4" height="4" fill="#2f9e5a"/>
-          <rect x="14" y="18" width="4" height="4" fill="#37b568"/>
-          <rect x="18" y="14" width="4" height="4" fill="#2f9e5a"/>
-          <!-- 머리 -->
-          <rect x="20" y="10" width="6" height="6" fill="#37b568"/>
-          <rect x="24" y="11" width="2" height="2" fill="#ffffff"/>
-          <!-- 먹이 -->
-          <rect x="8" y="8" width="3" height="3" fill="#ff5d73"/>
-          <rect x="20" y="20" width="3" height="3" fill="#ffd166"/>
-        </svg>
-      </div>
-      <div class="cardBody">
-        <div class="gameTitle">Eating Snakes</div>
-        <div class="gameTag">멀티플레이어 · 아케이드</div>
-        <a class="playBtn" href="https://kangbaek-ho.github.io/eatingsnakes/">▶ 플레이</a>
-      </div>
-    </div>
-  </div>
-
-  <div class="emptyState" id="emptyState">검색 결과가 없어요. 다른 이름으로 찾아보세요.</div>
+  <div class="grid" id="grid"></div>
+  <div class="emptyState" id="emptyState">검색 결과가 없어요. 다른 조건으로 찾아보세요.</div>
 </main>
 
 <footer>2DGAMES — PRESS PLAY TO START</footer>
 
+<!-- ===================== 게임 만들기 모달 ===================== -->
+<div class="modalOverlay" id="createModal">
+  <div class="modalCard">
+    <div class="modalHead">
+      <h2>➕ 게임 만들기</h2>
+      <button class="closeX" data-close="createModal">✕</button>
+    </div>
+
+    <label class="formLabel">게임 이름</label>
+    <input type="text" id="gameNameInput" placeholder="예: 벽돌깨기 리믹스" maxlength="40">
+
+    <label class="formLabel">카테고리</label>
+    <select id="gameCategoryInput"></select>
+
+    <label class="formLabel">플레이 링크 (URL)</label>
+    <input type="url" id="gameUrlInput" placeholder="https://...">
+
+    <label class="formLabel">썸네일 이미지</label>
+    <div class="thumbUpload" id="thumbUploadZone">
+      <div class="thumbPreview" id="thumbPreview">🖼️</div>
+      <div class="thumbUploadText"><b>이미지를 선택하세요</b><br>클릭해서 파일 업로드 (선택 사항)</div>
+      <input type="file" accept="image/*" id="thumbFileInput" style="display:none;">
+    </div>
+
+    <div class="formErr" id="createErr"></div>
+
+    <div class="formActions">
+      <button class="ghostBtn" data-close="createModal">취소</button>
+      <button class="solidBtn" id="createSaveBtn">만들기 (비공개로 저장)</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 내 게임 모달 ===================== -->
+<div class="modalOverlay" id="myGamesModal">
+  <div class="modalCard">
+    <div class="modalHead">
+      <h2>🗂 내 게임</h2>
+      <button class="closeX" data-close="myGamesModal">✕</button>
+    </div>
+    <div id="myGamesList"></div>
+  </div>
+</div>
+
 <script>
-  const input = document.getElementById('searchInput');
-  const cards = Array.from(document.querySelectorAll('.gameCard'));
-  const countNum = document.getElementById('countNum');
-  const emptyState = document.getElementById('emptyState');
+"use strict";
 
-  function normalize(s){ return s.toLowerCase().trim(); }
+const CATEGORIES = ['음악','총게임','서바이벌','만들기','퍼즐모험게임','생존게임','3D게임','기타'];
+const STORAGE_KEY = 'games2d_userGames';
 
-  function filterGames(){
-    const q = normalize(input.value);
-    let visible = 0;
-    for(const card of cards){
-      const match = normalize(card.dataset.name).includes(q);
-      card.style.display = match ? '' : 'none';
-      if(match) visible++;
-    }
-    countNum.textContent = visible;
-    emptyState.style.display = visible === 0 ? 'block' : 'none';
+const BUILTIN_GAMES = [
+  {
+    id:'builtin-eating-snakes',
+    name:'Eating Snakes',
+    category:'서바이벌',
+    url:'https://kangbaek-ho.github.io/eatingsnakes/',
+    thumb:null,
+    builtin:true,
+    published:true,
+    tag:'멀티플레이어 · 아케이드'
   }
+];
 
-  input.addEventListener('input', filterGames);
-  filterGames();
+function safeGet(key){ try{ return localStorage.getItem(key); }catch(e){ return null; } }
+function safeSet(key,val){ try{ localStorage.setItem(key,val); }catch(e){} }
+
+function loadUserGames(){
+  try{ return JSON.parse(safeGet(STORAGE_KEY)) || []; }catch(e){ return []; }
+}
+function saveUserGames(list){ safeSet(STORAGE_KEY, JSON.stringify(list)); }
+function getAllGames(){ return BUILTIN_GAMES.concat(loadUserGames()); }
+
+function snakeThumbSVG(){
+  return `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    <rect x="0" y="0" width="32" height="32" fill="#eaf7ee"/>
+    <rect x="4" y="26" width="2" height="2" fill="#bfe3c9"/>
+    <rect x="12" y="6" width="2" height="2" fill="#bfe3c9"/>
+    <rect x="24" y="22" width="2" height="2" fill="#bfe3c9"/>
+    <rect x="6" y="18" width="4" height="4" fill="#2f9e5a"/>
+    <rect x="10" y="18" width="4" height="4" fill="#37b568"/>
+    <rect x="14" y="14" width="4" height="4" fill="#2f9e5a"/>
+    <rect x="14" y="18" width="4" height="4" fill="#37b568"/>
+    <rect x="18" y="14" width="4" height="4" fill="#2f9e5a"/>
+    <rect x="20" y="10" width="6" height="6" fill="#37b568"/>
+    <rect x="24" y="11" width="2" height="2" fill="#ffffff"/>
+    <rect x="8" y="8" width="3" height="3" fill="#ff5d73"/>
+    <rect x="20" y="20" width="3" height="3" fill="#ffd166"/>
+  </svg>`;
+}
+function genericThumbSVG(){
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="#8aa0ff" stroke-width="1.6" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="7" width="20" height="11" rx="4"/>
+    <path d="M6.2 12.5h3.6M8 10.7v3.6" stroke="#8aa0ff"/>
+    <circle cx="16" cy="11" r="1.1" fill="#8aa0ff" stroke="none"/>
+    <circle cx="18.2" cy="13.2" r="1.1" fill="#8aa0ff" stroke="none"/>
+  </svg>`;
+}
+function thumbInnerHTML(game){
+  if(game.thumb) return `<img src="${game.thumb}" alt="${escapeHtml(game.name)} 썸네일">`;
+  if(game.builtin && game.id==='builtin-eating-snakes') return snakeThumbSVG();
+  return genericThumbSVG();
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+let activeCategory = '전체';
+const catRow = document.getElementById('catRow');
+function renderCatChips(){
+  const cats = ['전체', ...CATEGORIES];
+  catRow.innerHTML = cats.map(c=>`<button class="catChip ${c===activeCategory?'active':''}" data-cat="${c}">${c}</button>`).join('');
+  catRow.querySelectorAll('.catChip').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      activeCategory = btn.dataset.cat;
+      renderCatChips();
+      renderGrid();
+    });
+  });
+}
+
+const catSelect = document.getElementById('gameCategoryInput');
+catSelect.innerHTML = CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join('');
+
+const grid = document.getElementById('grid');
+const countNum = document.getElementById('countNum');
+const emptyState = document.getElementById('emptyState');
+const searchInput = document.getElementById('searchInput');
+
+function normalize(s){ return (s||'').toLowerCase().trim(); }
+
+function renderGrid(){
+  const q = normalize(searchInput.value);
+  const games = getAllGames().filter(g=>{
+    if(!g.published) return false;
+    if(activeCategory!=='전체' && g.category!==activeCategory) return false;
+    if(q && !normalize(g.name).includes(q)) return false;
+    return true;
+  });
+
+  countNum.textContent = games.length;
+  emptyState.style.display = games.length===0 ? 'block' : 'none';
+
+  grid.innerHTML = games.map(g=>`
+    <div class="gameCard">
+      <div class="thumb">${thumbInnerHTML(g)}</div>
+      <div class="cardBody">
+        <div class="gameTitle">${escapeHtml(g.name)}</div>
+        <div class="gameTag">${escapeHtml(g.tag || g.category)}</div>
+        <a class="playBtn" href="${escapeHtml(g.url)}" target="_blank" rel="noopener">▶ 플레이</a>
+      </div>
+    </div>
+  `).join('');
+}
+
+searchInput.addEventListener('input', renderGrid);
+
+document.querySelectorAll('.closeX, [data-close]').forEach(el=>{
+  el.addEventListener('click', ()=>{
+    const id = el.dataset.close;
+    if(id) document.getElementById(id).classList.remove('show');
+  });
+});
+
+const createModal = document.getElementById('createModal');
+const openCreateBtn = document.getElementById('openCreateBtn');
+const gameNameInput = document.getElementById('gameNameInput');
+const gameUrlInput = document.getElementById('gameUrlInput');
+const thumbUploadZone = document.getElementById('thumbUploadZone');
+const thumbFileInput = document.getElementById('thumbFileInput');
+const thumbPreview = document.getElementById('thumbPreview');
+const createErr = document.getElementById('createErr');
+let pendingThumbDataUrl = null;
+
+openCreateBtn.addEventListener('click', ()=>{
+  gameNameInput.value = '';
+  gameUrlInput.value = '';
+  catSelect.selectedIndex = 0;
+  pendingThumbDataUrl = null;
+  thumbPreview.innerHTML = '🖼️';
+  createErr.style.display = 'none';
+  createModal.classList.add('show');
+});
+
+thumbUploadZone.addEventListener('click', ()=> thumbFileInput.click());
+thumbFileInput.addEventListener('change', ()=>{
+  const file = thumbFileInput.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const maxW = 480, maxH = 360;
+      let w = img.width, h = img.height;
+      const scale = Math.min(1, maxW/w, maxH/h);
+      w = Math.round(w*scale); h = Math.round(h*scale);
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      pendingThumbDataUrl = c.toDataURL('image/jpeg', 0.82);
+      thumbPreview.innerHTML = `<img src="${pendingThumbDataUrl}">`;
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('createSaveBtn').addEventListener('click', ()=>{
+  const name = gameNameInput.value.trim();
+  const url = gameUrlInput.value.trim();
+  const category = catSelect.value;
+
+  if(!name){ createErr.textContent = '게임 이름을 입력해주세요.'; createErr.style.display='block'; return; }
+  if(!url){ createErr.textContent = '플레이 링크(URL)를 입력해주세요.'; createErr.style.display='block'; return; }
+  try{ new URL(url); }catch(e){ createErr.textContent = '올바른 URL 형식이 아니에요 (https://로 시작해야 해요).'; createErr.style.display='block'; return; }
+
+  const games = loadUserGames();
+  games.push({
+    id: 'g_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+    name, category, url,
+    thumb: pendingThumbDataUrl,
+    published: false,
+    createdAt: Date.now()
+  });
+  saveUserGames(games);
+
+  createModal.classList.remove('show');
+  renderGrid();
+  toast('✅ 게임이 만들어졌어요! "내 게임"에서 공개 버튼을 눌러야 목록에 나타나요.');
+});
+
+const myGamesModal = document.getElementById('myGamesModal');
+const myGamesList = document.getElementById('myGamesList');
+document.getElementById('openMyGamesBtn').addEventListener('click', ()=>{
+  renderMyGames();
+  myGamesModal.classList.add('show');
+});
+
+function renderMyGames(){
+  const games = loadUserGames();
+  if(games.length===0){
+    myGamesList.innerHTML = `<div class="myGamesEmpty">아직 만든 게임이 없어요. "➕ 게임 만들기"로 첫 게임을 등록해보세요!</div>`;
+    return;
+  }
+  myGamesList.innerHTML = games.slice().reverse().map(g=>`
+    <div class="myGameRow" data-id="${g.id}">
+      <div class="myGameThumb">${thumbInnerHTML(g)}</div>
+      <div class="myGameInfo">
+        <div class="myGameName">${escapeHtml(g.name)}</div>
+        <div class="myGameMeta">${escapeHtml(g.category)}</div>
+      </div>
+      <span class="statusBadge ${g.published?'pub':'draft'}">${g.published?'공개됨':'비공개'}</span>
+      <div class="myGameActions">
+        <button class="smallBtn ${g.published?'':'publish'}" data-action="toggle" data-id="${g.id}">${g.published?'비공개로 전환':'공개'}</button>
+        <button class="smallBtn danger" data-action="delete" data-id="${g.id}">삭제</button>
+      </div>
+    </div>
+  `).join('');
+
+  myGamesList.querySelectorAll('[data-action="toggle"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const games = loadUserGames();
+      const g = games.find(x=>x.id===btn.dataset.id);
+      if(g){
+        g.published = !g.published;
+        saveUserGames(games);
+        renderMyGames();
+        renderGrid();
+        if(g.published) toast(`🎉 "${g.name}"이(가) 공개되었어요!`);
+      }
+    });
+  });
+  myGamesList.querySelectorAll('[data-action="delete"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(!confirm('이 게임을 삭제할까요? 되돌릴 수 없어요.')) return;
+      let games = loadUserGames();
+      games = games.filter(x=>x.id!==btn.dataset.id);
+      saveUserGames(games);
+      renderMyGames();
+      renderGrid();
+    });
+  });
+}
+
+let toastTimer = null;
+function toast(msg){
+  let el = document.getElementById('toastEl');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'toastEl';
+    el.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#12141a;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:200;opacity:0;transition:opacity .25s;max-width:90vw;text-align:center;';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.opacity = '1';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ el.style.opacity='0'; }, 2600);
+}
+
+renderCatChips();
+renderGrid();
 </script>
 
 </body>
