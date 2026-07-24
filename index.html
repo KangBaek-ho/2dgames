@@ -205,6 +205,53 @@ const BUILTIN_GAMES = [
     builtin:true,
     published:true,
     tag:'보드게임 · 1인용'
+  },
+  {
+    id:'builtin-build-a-house-3d',
+    name:'집 만들기 3D',
+    category:'만들기',
+    url:'https://kangbaek-ho.github.io/build-a-house-3d/',
+    builtin:true,
+    published:true,
+    tag:'건축 · 만들기'
+  },
+  {
+    id:'builtin-wargame',
+    name:'전쟁게임',
+    category:'총게임',
+    url:'https://kangbaek-ho.github.io/wargame/',
+    builtin:true,
+    published:true,
+    tag:'슈팅 · 전투'
+  },
+  {
+    id:'builtin-keyboard',
+    name:'키보드',
+    category:'기타',
+    url:'https://kangbaek-ho.github.io/keyboard/',
+    builtin:true,
+    published:true,
+    tag:'유틸리티 · 재미'
+  },
+  {
+    id:'builtin-wargame-3d',
+    name:'전쟁게임 (3D)',
+    category:'3D게임',
+    url:'https://kangbaek-ho.github.io/wargame/',
+    builtin:true,
+    published:true,
+    tag:'슈팅 · 3D',
+    hideInAll:true
+  },
+  {
+    id:'builtin-build-a-house-3d-cat',
+    name:'집 만들기 3D',
+    category:'3D게임',
+    url:'https://kangbaek-ho.github.io/build-a-house-3d/',
+    builtin:true,
+    published:true,
+    tag:'건축 · 3D',
+    hideInAll:true
   }
 ];
 
@@ -244,6 +291,51 @@ function chessThumbSVG(){
     <rect x="9" y="24" width="14" height="3" fill="#2b6bff"/>
   </svg>`;
 }
+function houseThumbSVG(){
+  return `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    <rect x="0" y="0" width="32" height="32" fill="#eaf2ff"/>
+    <rect x="2" y="24" width="28" height="2" fill="#8aa0ff"/>
+    <rect x="6" y="14" width="20" height="12" fill="#f4e4c9"/>
+    <rect x="4" y="14" width="24" height="3" fill="#c0392b"/>
+    <rect x="14" y="8" width="4" height="6" fill="#c0392b"/>
+    <rect x="16" y="4" width="2" height="4" fill="#c0392b"/>
+    <rect x="10" y="18" width="5" height="5" fill="#8ec4ff"/>
+    <rect x="19" y="18" width="5" height="5" fill="#8ec4ff"/>
+    <rect x="14" y="20" width="4" height="6" fill="#8a5a2b"/>
+    <rect x="24" y="10" width="2" height="6" fill="#4a4a4a"/>
+  </svg>`;
+}
+function wargameThumbSVG(){
+  return `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    <rect x="0" y="0" width="32" height="32" fill="#e9ede6"/>
+    <rect x="2" y="24" width="28" height="3" fill="#5a6b4a"/>
+    <rect x="6" y="18" width="10" height="4" fill="#4a5a3a"/>
+    <rect x="8" y="14" width="6" height="4" fill="#4a5a3a"/>
+    <rect x="18" y="8" width="3" height="16" fill="#333"/>
+    <rect x="21" y="10" width="8" height="2" fill="#333"/>
+    <rect x="16" y="7" width="6" height="3" fill="#3a4a2a"/>
+    <rect x="4" y="10" width="4" height="4" fill="#c0392b"/>
+    <rect x="6" y="8" width="1" height="3" fill="#c0392b"/>
+  </svg>`;
+}
+function keyboardThumbSVG(){
+  return `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    <rect x="0" y="0" width="32" height="32" fill="#f0eefc"/>
+    <rect x="3" y="10" width="26" height="14" rx="1" fill="#2b2f3a"/>
+    <rect x="5" y="12" width="3" height="3" fill="#eef0f5"/>
+    <rect x="9" y="12" width="3" height="3" fill="#eef0f5"/>
+    <rect x="13" y="12" width="3" height="3" fill="#eef0f5"/>
+    <rect x="17" y="12" width="3" height="3" fill="#eef0f5"/>
+    <rect x="21" y="12" width="3" height="3" fill="#eef0f5"/>
+    <rect x="25" y="12" width="2" height="3" fill="#eef0f5"/>
+    <rect x="5" y="16" width="3" height="3" fill="#2b6bff"/>
+    <rect x="9" y="16" width="3" height="3" fill="#eef0f5"/>
+    <rect x="13" y="16" width="3" height="3" fill="#eef0f5"/>
+    <rect x="17" y="16" width="3" height="3" fill="#eef0f5"/>
+    <rect x="21" y="16" width="3" height="3" fill="#eef0f5"/>
+    <rect x="7" y="20" width="18" height="3" fill="#eef0f5"/>
+  </svg>`;
+}
 function genericThumbSVG(){
   return `<svg viewBox="0 0 24 24" fill="none" stroke="#8aa0ff" stroke-width="1.6" xmlns="http://www.w3.org/2000/svg">
     <rect x="2" y="7" width="20" height="11" rx="4"/>
@@ -255,11 +347,39 @@ function genericThumbSVG(){
 function thumbInnerHTML(game){
   if(game.id==='builtin-eating-snakes') return snakeThumbSVG();
   if(game.id==='builtin-chess') return chessThumbSVG();
+  if(game.id==='builtin-build-a-house-3d' || game.id==='builtin-build-a-house-3d-cat') return houseThumbSVG();
+  if(game.id==='builtin-wargame' || game.id==='builtin-wargame-3d') return wargameThumbSVG();
+  if(game.id==='builtin-keyboard') return keyboardThumbSVG();
   return genericThumbSVG();
 }
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
+
+let audioCtx = null;
+function playClickSound(){
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(1200, now);
+    osc.frequency.exponentialRampToValueAtTime(600, now + 0.05);
+    gain.gain.setValueAtTime(0.18, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.07);
+  }catch(e){ /* audio unsupported, ignore */ }
+}
+document.addEventListener('click', (e)=>{
+  if(e.target.closest('.catChip, .playBtn, .linkBtn')){
+    playClickSound();
+  }
+}, true);
 
 let activeCategory = '전체';
 const catRow = document.getElementById('catRow');
@@ -286,6 +406,7 @@ function renderGrid(){
   const q = normalize(searchInput.value);
   const games = getAllGames().filter(g=>{
     if(!g.published) return false;
+    if(activeCategory==='전체' && g.hideInAll) return false;
     if(activeCategory!=='전체' && g.category!==activeCategory) return false;
     if(q && !normalize(g.name).includes(q)) return false;
     return true;
